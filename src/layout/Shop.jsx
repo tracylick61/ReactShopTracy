@@ -1,15 +1,23 @@
 import { useState, useEffect } from "react";
+import M from "materialize-css";
 import { API_KEY, API_URL } from "../config";
 import { Preloader } from "../components/Preloader";
 import { GoodsList } from "../components/GoodsList";
 import { BasketList } from "../components/BasketList";
-import { Cart } from "../components/Cart";  // Импортируем новый компонент
+import { Cart } from "../components/Cart";
+import { Alert } from "../components/Alert";
 
 export function Shop() {
   const [goods, setGoods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState([]);
   const [isBasketShow, setIsBasketShow] = useState(false);
+  const [alertName, setAlertName] = useState("");
+
+  useEffect(() => {
+    const elems = document.querySelectorAll(".modal");
+    M.Modal.init(elems, { opacity: 0.5, preventScrolling: true });
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,22 +32,26 @@ export function Shop() {
   }, []);
 
   const addToBasket = (item) => {
-    setOrder((prevOrder) => {
-      const itemIndex = prevOrder.findIndex(
-        (orderItem) => orderItem.mainId === item.mainId
-      );
-
-      if (itemIndex < 0) {
-        return [...prevOrder, { ...item, quantity: 1 }];
-      }
-
-      return prevOrder.map((orderItem, index) =>
+    const itemIndex = order.findIndex(
+      (orderItem) => orderItem.mainId === item.mainId
+    );
+  
+    let newOrder = [];
+  
+    if (itemIndex < 0) {
+      newOrder = [...order, { ...item, quantity: 1 }];
+    } else {
+      newOrder = order.map((orderItem, index) =>
         index === itemIndex
           ? { ...orderItem, quantity: orderItem.quantity + 1 }
           : orderItem
       );
-    });
+    }
+  
+    setOrder(newOrder);
+    setAlertName(item.displayName || "Товар"); // 🔔 алерт
   };
+  
 
   const removeFromBasket = (mainId) => {
     setOrder((prevOrder) => prevOrder.filter((item) => item.mainId !== mainId));
@@ -68,44 +80,46 @@ export function Shop() {
     );
   };
 
-  const handleBasketShow = () => {
-    setIsBasketShow((prev) => !prev);
-  };
-
-  const closeModal = (e) => {
-    if (e.target.classList.contains("modal-overlay")) {
-      setIsBasketShow(false);
-    }
-  };
-
   return (
     <main className="container content">
-      <Cart quantity={order.length} handleBasketShow={handleBasketShow} />  {/* Используем новый компонент */}
+      {}
+      <Cart
+        quantity={order.length}
+        handleBasketShow={() => {
+          const modal = M.Modal.getInstance(
+            document.getElementById("basket-modal")
+          );
+          modal.open();
+        }}
+      />
 
-      {isBasketShow && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content">
-            <button
-              className="modal-close"
-              onClick={() => setIsBasketShow(false)}
-            >
-              &times;
-            </button>
-            <BasketList
-              order={order}
-              removeFromBasket={removeFromBasket}
-              incrementQuantity={incrementQuantity}
-              decrementQuantity={decrementQuantity}
-            />
-          </div>
+      {}
+      <div id="basket-modal" className="modal">
+        <div className="modal-content">
+          <BasketList
+            order={order}
+            removeFromBasket={removeFromBasket}
+            incrementQuantity={incrementQuantity}
+            decrementQuantity={decrementQuantity}
+          />
         </div>
-      )}
+        <button
+      className="modal-close close-icon"
+      onClick={() =>
+    M.Modal.getInstance(document.getElementById("basket-modal")).close()
+      }   
+    >
+     &times;
+    </button>
+      </div>
 
       {loading ? (
         <Preloader />
       ) : (
         <GoodsList goods={goods} addToBasket={addToBasket} />
+        
       )}
+      {alertName && <Alert name={alertName} closeAlert={() => setAlertName("")} />}
     </main>
   );
 }

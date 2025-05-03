@@ -1,6 +1,5 @@
-// src/components/Preloader.jsx
 import React from 'react';
-import StyledCircle from '../layout/Circle';  // Импортируем компонент круга
+import StyledCircle from '../layout/Circle';
 
 export function Preloader() {
   return (
