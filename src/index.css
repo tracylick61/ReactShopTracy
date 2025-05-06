@@ -239,7 +239,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  border-radius: 12px;
+  border-radius: 15px !important;
   overflow: hidden;
   background-color: white;
   color: var(--dark-color);
@@ -268,12 +268,20 @@ body {
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-box-orient: vertical;
+  font-family: "Roboto";
 }
 
 .card-action {
   margin-top: auto;
-  background-color: var(--primary-color)
+  background-color: var(--primary-color);
+  font-family: 'Roboto';
 }
+.card-action span {
+  font-family: 'Roboto';
+  font-weight: 500;
+  font-size: 18px;
+}
+
 .btn:focus{
   background-color: var(--primary-color) !important;
   color: var(--dark-color) !important;
@@ -286,7 +294,7 @@ body {
   font-family: 'Roboto', sans-serif;
   font-weight: 700;
   border: none;
-  border-radius: 8px;
+  border-radius: 8px !important;
   cursor: pointer;
   text-transform: uppercase;
 
